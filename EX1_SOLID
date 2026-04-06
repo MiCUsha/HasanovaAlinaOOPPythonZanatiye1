@@ -1,0 +1,54 @@
+# HasanovaAlinaOOPPythonZanatiye1
+Задание 1 SOLID
+import json
+from dataclasses import dataclass
+@dataclass
+class Order:
+    id: str
+    price: float
+    qty: int
+    customer_email: str
+# Загрузка
+class OrderLoader:
+    def load(self, json_path: str) -> list[dict]:
+        with open(json_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+# Валидация + парсинг
+class OrderParser:
+    def parse(self, raw: list[dict]) -> list[Order]:
+        orders = []
+        for item in raw:
+            if "id" not in item or "price" not in item or "qty" not in item or "email" not in item:
+                raise ValueError("Invalid order payload")
+            if item["qty"] <= 0:
+                raise ValueError("qty must be positive")
+            orders.append(Order(item["id"],float(item["price"]),int(item["qty"]),item["email"]) )
+        return orders
+# Расчёт
+class OrderCalculator:
+    def calculate_total(self, orders: list[Order]) -> float:
+        return sum(o.price * o.qty for o in orders)
+# Форматирование
+class ReportFormatter:
+    def format(self, orders: list[Order], total: float) -> str:
+        return f"Orders count: {len(orders)}\nTotal: {total:.2f}\n"
+# Отправка
+class EmailSender:
+    def send(self, to: str, subject: str, body: str) -> None:
+        print(f"[EMAIL to={to}] {subject}\n{body}")
+# Оркестратор
+class OrderReportService:
+    def __init__(self):
+        self.loader = OrderLoader()
+        self.parser = OrderParser()
+        self.calculator = OrderCalculator()
+        self.formatter = ReportFormatter()
+        self.sender = EmailSender()
+    def make_and_send_report(self, json_path: str) -> str:
+        raw = self.loader.load(json_path)
+        orders = self.parser.parse(raw)
+        total = self.calculator.calculate_total(orders)
+        report = self.formatter.format(orders, total)
+        for o in orders:
+            self.sender.send(o.customer_email, "Your order report", report)
+        return report
