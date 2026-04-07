@@ -1,0 +1,17 @@
+HasanovaAlinaOOPPythonZanatiye1
+from abc import ABC, abstractmethod
+class Notifier(ABC):
+    @abstractmethod
+    def send(self, to: str, text: str) -> None: ...
+class EmailClient(Notifier):
+    def send(self, to: str, text: str) -> None:
+        print(f"[EMAIL to={to}] {text}")
+class SmsClient(Notifier):
+    def send(self, to: str, text: str) -> None:
+        print(f"[SMS to={to}] {text}")
+class NotificationService:
+    def __init__(self, notifiers: list[Notifier]):
+        self._notifiers = notifiers
+    def notify(self, user_email: str, user_phone: str, text: str) -> None:
+        for n in self._notifiers:
+            n.send(user_email if isinstance(n, EmailClient) else user_phone, text)
