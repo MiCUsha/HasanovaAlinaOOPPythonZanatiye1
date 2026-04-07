@@ -1,0 +1,26 @@
+HasanovaAlinaOOPPythonZanatiye1
+from dataclasses import dataclass
+@dataclass
+class Order:
+    total: float
+@dataclass
+class Customer:
+    kind: str
+class Discount:
+    def apply(self, order: Order) -> float:
+        return order.total
+class VipDiscount(Discount):
+    def apply(self, order: Order) -> float:
+        return order.total * 0.9
+class EmployeeDiscount(Discount):
+    def apply(self, order: Order) -> float:
+        return order.total * 0.8
+class BlackFridayDiscount(Discount):
+    def apply(self, order: Order) -> float:
+        return order.total * 0.7
+discounts={"vip":VipDiscount(),
+"employee":EmployeeDiscount(),
+"black_friday":BlackFridayDiscount()}
+def apply_discount(order: Order,
+    customer: Customer) -> float:
+    return discounts.get(customer.kind,Discount()).apply(order)
