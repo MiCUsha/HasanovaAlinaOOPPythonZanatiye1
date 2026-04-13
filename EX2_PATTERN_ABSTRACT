@@ -1,0 +1,43 @@
+HasanovaAlinaOOPPythonZanatiye1
+from abc import ABC, abstractmethod
+
+class Report(ABC):
+    @abstractmethod
+    def generate(self, data: dict) -> str:
+        pass
+
+class PdfReport(Report):
+    def generate(self, data: dict) -> str:
+        return f"[PDF] Отчёт: {data}"
+
+class ExcelReport(Report):
+    def generate(self, data: dict) -> str:
+        return f"[Excel] Отчёт: {data}"
+
+class CsvReport(Report):
+    def generate(self, data: dict) -> str:
+        return f"[CSV] Отчёт: {data}"
+
+class ReportManager(ABC):
+    @abstractmethod
+    def create_report(self) -> Report:
+        pass
+
+    def export(self, data: dict) -> str:
+        report = self.create_report()
+        return report.generate(data)
+
+class PdfReportManager(ReportManager):
+    def create_report(self) -> Report:
+        return PdfReport()
+
+class ExcelReportManager(ReportManager):
+    def create_report(self) -> Report:
+        return ExcelReport()
+
+class CsvReportManager(ReportManager):
+    def create_report(self) -> Report:
+        return CsvReport()
+
+manager = PdfReportManager()
+print(manager.export({"title": "Продажи Q1", "total": 150000}))
