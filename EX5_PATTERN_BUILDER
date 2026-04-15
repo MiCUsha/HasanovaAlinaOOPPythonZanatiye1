@@ -1,0 +1,112 @@
+HasanovaAlinaOOPPythonZanatiye1
+from dataclasses import dataclass, field
+
+@dataclass
+class Email:
+    from_addr: str
+    to: list[str]
+    subject: str
+    cc: list[str] = field(default_factory=list)
+    bcc: list[str] = field(default_factory=list)
+    text_body: str = ""
+    html_body: str = ""
+    attachments: list[str] = field(default_factory=list)
+
+    def __str__(self) -> str:
+        return (
+            f"От: {self.from_addr}\n"
+            f"Кому: {', '.join(self.to)}\n"
+            f"Тема: {self.subject}\n"
+            f"Вложений: {len(self.attachments)}"
+        )
+
+# Строитель
+class EmailBuilder:
+    def __init__(self):
+        self.from_addr = ""
+        self.to = []
+        self.cc = []
+        self.bcc = []
+        self.subject = ""
+        self.text_body = ""
+        self.html_body = ""
+        self.attachments = []
+
+    def set_from(self, addr):
+        self.from_addr = addr
+        return self
+
+    def add_to(self, addr):
+        self.to.append(addr)
+        return self
+
+    def add_cc(self, addr):
+        self.cc.append(addr)
+        return self
+
+    def add_bcc(self, addr):
+        self.bcc.append(addr)
+        return self
+
+    def set_subject(self, subject):
+        self.subject = subject
+        return self
+
+    def set_text_body(self, body):
+        self.text_body = body
+        return self
+
+    def set_html_body(self, body):
+        self.html_body = body
+        return self
+
+    def add_attachment(self, file):
+        self.attachments.append(file)
+        return self
+
+    def build(self):
+        if not self.from_addr or not self.to or not self.subject:
+            raise ValueError("Обязательные поля: from, to, subject")
+
+        return Email(
+            from_addr=self.from_addr,
+            to=self.to,
+            subject=self.subject,
+            cc=self.cc,
+            bcc=self.bcc,
+            text_body=self.text_body,
+            html_body=self.html_body,
+            attachments=self.attachments,
+        )
+
+# Директор
+class Director:
+    def __init__(self, builder: EmailBuilder):
+        self.builder = builder
+
+    def build_welcome_email(self, to_addr, username):
+        self.builder = EmailBuilder()
+        return (
+            self.builder
+            .set_from("noreply@company.com")
+            .add_to(to_addr)
+            .set_subject("Добро пожаловать!")
+            .set_text_body(f"Здравствуйте, {username}! Добро пожаловать.")
+            .build()
+        )
+
+    def build_password_reset_email(self, to_addr, reset_link):
+        self.builder = EmailBuilder()
+        return (
+            self.builder
+            .set_from("security@company.com")
+            .add_to(to_addr)
+            .set_subject("Сброс пароля")
+            .set_text_body(f"Перейдите по ссылке для сброса: {reset_link}")
+            .build()
+        )
+
+# Использование
+director = Director(EmailBuilder())
+email = director.build_welcome_email("user@example.com", "Иван")
+print(email)
