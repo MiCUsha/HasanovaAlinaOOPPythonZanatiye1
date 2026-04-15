@@ -1,0 +1,83 @@
+HasanovaAlinaOOPPythonZanatiye1
+# Строитель SQL-запроса
+class SelectQueryBuilder:
+    def __init__(self):
+        self.table = ""
+        self.columns = []
+        self.joins = []
+        self.conditions = []
+        self.order = ""
+        self.limit_value = None
+        self.offset_value = None
+
+    def from_table(self, table):
+        self.table = table
+        return self
+
+    def select(self, *columns):
+        self.columns = list(columns)
+        return self
+
+    def join(self, table, condition):
+        self.joins.append(f"JOIN {table} ON {condition}")
+        return self
+
+    def where(self, condition):
+        self.conditions.append(condition)
+        return self
+
+    def order_by(self, column, direction="ASC"):
+        self.order = f"ORDER BY {column} {direction}"
+        return self
+
+    def limit(self, value):
+        self.limit_value = value
+        return self
+
+    def offset(self, value):
+        self.offset_value = value
+        return self
+
+    def build(self):
+        sql = []
+
+        columns = ", ".join(self.columns) if self.columns else "*"
+        sql.append(f"SELECT {columns}")
+
+        sql.append(f"FROM {self.table}")
+
+        if self.joins:
+            sql.extend(self.joins)
+
+        if self.conditions:
+            sql.append(f"WHERE {' AND '.join(self.conditions)}")
+
+        if self.order:
+            sql.append(self.order)
+
+        if self.limit_value is not None:
+            sql.append(f"LIMIT {self.limit_value}")
+
+        if self.offset_value is not None:
+            sql.append(f"OFFSET {self.offset_value}")
+
+        return "\n".join(sql)
+
+# Использование
+sql = (
+    SelectQueryBuilder()
+    .from_table("orders")
+    .select("id", "total", "status")
+    .join("users", "orders.user_id = users.id")
+    .where("status = 'new'")
+    .where("total > 1000")
+    .order_by("created_at", "DESC")
+    .limit(10)
+    .offset(20)
+    .build()
+)
+
+print(sql)
+
+sql_min = SelectQueryBuilder().from_table("products").build()
+print(sql_min)
